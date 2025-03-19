@@ -1,0 +1,22 @@
+# Node.js dependencies
+node_modules/
+.next/
+out/
+
+# Environment variables (DO NOT commit API keys)
+.env.local
+.env.production
+.env.development
+
+# Build and cache files
+.DS_Store
+package-lock.json
+yarn.lock
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+*.log
