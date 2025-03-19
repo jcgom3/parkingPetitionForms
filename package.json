@@ -17,9 +17,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@react-google-maps/api": "^2.20.6",
     "axios": "^1.8.3",
     "docusign-esign": "^8.0.1",
     "dotenv": "^16.4.7",
+    "googleapis": "^146.0.0",
     "marked": "^15.0.7",
     "next": "^15.2.3",
     "nodemailer": "^6.10.0",

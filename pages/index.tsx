@@ -9,14 +9,17 @@ export default function HomePage() {
   const cornerLots = [
     "1941 Victoria St",
     "2104 Desert Rose Dr",
-    "2013 Desert Rose Dr",
+    "2103 Desert Rose Dr",
     "1170 Cascade Dr",
   ];
 
   const sideHomes = [
     "1902 Victoria St",
+    "1906 Victoria St",
     "1910 Victoria St",
     "1914 Victoria St",
+    "1918 Victoria St",
+    "1922 Victoria St",
     "1926 Victoria St",
     "1930 Victoria St",
     "1934 Victoria St",
