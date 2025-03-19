@@ -1,11 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { createEnvelope } from "@/lib/docusign";
 import dotenv from "dotenv";
+import redisClient from "@/lib/redis"; // ✅ Use Redis
 
 dotenv.config();
-
-// ✅ Store access codes in memory (TEMPORARY: Use a database in production)
-const accessCodes: Record<string, string> = {};
 
 /**
  * API route to validate an access code and generate a signing session.
@@ -32,8 +30,18 @@ export default async function handler(
     return res.status(400).json({ message: "Missing required fields." });
   }
 
-  // ✅ Check if access code exists & matches
-  if (!accessCodes[email] || accessCodes[email] !== accessCode) {
+  // ✅ Check if access code exists & matches in Redis
+  const storedCode = await redisClient.get(`accessCode:${email}`);
+
+  console.log(`🔍 Retrieved from Redis: ${storedCode} (for ${email})`);
+  console.log(`🔍 Incoming Access Code: ${accessCode}`);
+
+  if (storedCode !== accessCode) {
+    console.log(`❌ Mismatch! Expected: ${storedCode}, Got: ${accessCode}`);
+    return res.status(403).json({ message: "Invalid access code." });
+  }
+
+  if (!storedCode || storedCode !== accessCode) {
     console.error(`❌ Invalid or expired access code for: ${email}`);
     return res.status(403).json({ message: "Invalid or expired access code." });
   }
@@ -48,8 +56,7 @@ export default async function handler(
     });
 
     // ✅ Remove access code after successful signing (One-time use)
-    delete accessCodes[email];
-
+    await redisClient.del(`accessCode:${email}`);
     console.log(
       `✅ Signing initiated for ${email}. Envelope ID: ${envelopeId}`
     );

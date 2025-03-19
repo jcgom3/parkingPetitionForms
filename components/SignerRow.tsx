@@ -30,26 +30,22 @@ export default function SignerRow({ address, onSign }: SignerRowProps) {
 
     setLoading(true);
     setMessage("");
+    setAccessCode(""); // ✅ Clear previous access code before requesting a new one
 
     try {
-      // Generate a random 6-digit access code
-      const generatedAccessCode = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString();
-
       const response = await fetch("/api/send-access-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           signerEmail: email,
           signerName: `${firstName} ${lastInitial}`,
-          accessCode: generatedAccessCode,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        setAccessCode(generatedAccessCode);
+        console.log(`✅ Received Access Code: ${data.accessCode}`);
+        setAccessCode(data.accessCode); // ✅ Use only the backend-generated code
         setMessage("✅ Access code sent to your email.");
       } else {
         setMessage(`❌ Error: ${data.message}`);
@@ -71,6 +67,8 @@ export default function SignerRow({ address, onSign }: SignerRowProps) {
     setSigning(true);
     setMessage("");
 
+    console.log(`🚀 Sending Access Code for Verification: ${accessCode}`);
+
     try {
       const response = await fetch("/api/docusign", {
         method: "POST",
@@ -84,6 +82,8 @@ export default function SignerRow({ address, onSign }: SignerRowProps) {
       });
 
       const data = await response.json();
+      console.log(`📨 DocuSign API Response:`, data);
+
       if (response.ok) {
         setSigned(true);
         alert(
@@ -96,6 +96,7 @@ export default function SignerRow({ address, onSign }: SignerRowProps) {
       console.error("Error signing the petition:", err);
       setMessage("❌ An error occurred. Please try again.");
     }
+
     setSigning(false);
   };
 
