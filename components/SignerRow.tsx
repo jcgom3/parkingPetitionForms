@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/router"; // ✅ Import useRouter for navigation
 
 interface SignerRowProps {
   address: string;
@@ -12,6 +13,8 @@ interface SignerRowProps {
 }
 
 export default function SignerRow({ address, onSign }: SignerRowProps) {
+  const router = useRouter(); // ✅ Initialize useRouter for redirection
+
   const [firstName, setFirstName] = useState("");
   const [lastInitial, setLastInitial] = useState("");
   const [email, setEmail] = useState("");
@@ -44,8 +47,8 @@ export default function SignerRow({ address, onSign }: SignerRowProps) {
 
       const data = await response.json();
       if (response.ok) {
-        console.log(`✅ Received Access Code: ${data.accessCode}`);
-        setAccessCode(data.accessCode); // ✅ Use only the backend-generated code
+        console.log(`✅ Received Access Code from Backend: ${data.accessCode}`);
+        setAccessCode(data.accessCode); // ✅ Always use the backend-generated code
         setMessage("✅ Access code sent to your email.");
       } else {
         setMessage(`❌ Error: ${data.message}`);
@@ -57,7 +60,53 @@ export default function SignerRow({ address, onSign }: SignerRowProps) {
     setLoading(false);
   };
 
-  // ✅ Function to Sign the Petition via DocuSign
+  // // ✅ Function to Sign the Petition via DocuSign
+  // const handleSignPetition = async () => {
+  //   if (!accessCode) {
+  //     setMessage("⚠️ You must request an access code first.");
+  //     return;
+  //   }
+
+  //   setSigning(true);
+  //   setMessage("");
+
+  //   console.log(`🚀 Sending Access Code for Verification: ${accessCode}`);
+
+  //   try {
+  //     const response = await fetch("/api/docusign", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         firstName,
+  //         lastInitial,
+  //         email,
+  //         accessCode,
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+  //     console.log(`📨 DocuSign API Response:`, data);
+
+  //     if (response.ok) {
+  //       setSigned(true);
+  //       alert(
+  //         "✅ Signature request sent! Check your email to sign via DocuSign."
+  //       );
+
+  //       // ✅ Redirect to homepage after successful signing
+  //       setTimeout(() => {
+  //         router.push("/"); // ✅ Navigate to homepage
+  //       }, 2000);
+  //     } else {
+  //       setMessage(`❌ Error: ${data.error || "Failed to initiate signing."}`);
+  //     }
+  //   } catch (err) {
+  //     console.error("Error signing the petition:", err);
+  //     setMessage("❌ An error occurred. Please try again.");
+  //   }
+
+  //   setSigning(false);
+  // };
   const handleSignPetition = async () => {
     if (!accessCode) {
       setMessage("⚠️ You must request an access code first.");
@@ -86,9 +135,21 @@ export default function SignerRow({ address, onSign }: SignerRowProps) {
 
       if (response.ok) {
         setSigned(true);
-        alert(
+        setMessage(
           "✅ Signature request sent! Check your email to sign via DocuSign."
         );
+
+        // ✅ Redirect to homepage after 2 seconds
+        setTimeout(() => {
+          router.push("/"); // ✅ Navigate to homepage
+        }, 2000);
+
+        // ✅ Show alert separately after redirect starts
+        setTimeout(() => {
+          alert(
+            "✅ Signature request sent! Check your email to sign via DocuSign."
+          );
+        }, 500);
       } else {
         setMessage(`❌ Error: ${data.error || "Failed to initiate signing."}`);
       }
